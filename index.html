@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>ExcelFormulaBeautifier-demo</title>
+	<link rel="stylesheet" href="./src/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+	<style>
+		body{
+			padding: 0px;
+			margin: 0px;
+		}
+		.header{
+			background-color:rgb(33,115,70);
+			padding: 15px 0px;
+			color: white;
+		}
+
+		.header small{
+			color: white;
+		}
+
+		.results{
+			display: block;
+			height: auto;
+			min-height: 100px;
+			max-height: 1000px;
+			overflow-y: scroll;
+			overflow-x: hidden;
+			width: 100%;
+			border: 1px solid rgb(33,115,70);
+			border-radius: 3px;
+		}
+
+		.result{
+			white-space:pre;
+			padding: 3px 0px;
+			
+		}
+		.result:hover{
+			background-color: #eeeeee;
+		}
+
+		.functions{
+			height: auto;
+			min-height: 100px;
+			max-height: 1000px;
+			overflow-y: scroll;
+			width: 100%;
+		}
+
+		.functionInfo{
+			padding: 5px;
+			background-color: rgba(33,115,70,0.4);;
+			border-radius: 5px;
+			margin-bottom: 15px;
+			border: 1px solid white;
+		}
+
+		.functionInfo:hover{
+			border: 1px solid #aaaaaa;
+		}
+
+		.Fname{
+			font-size: 20px;
+			color: white;
+		}
+
+		.Des{
+
+		}
+		.Args{
+			font-weight: bold;
+		}
+
+		.description{
+			color: #bbbbbb;
+			padding-left: 25px;
+		}
+
+		.description-hidden{
+			display: none;
+		}
+
+	</style>
+</head>
+<body onLoad="LoadJss()">
+	<div class="page-header text-left header">
+		<div class="container">
+			<h1>Excel公式格式化/美化器</h1>
+			<h1><small>Demo-ExcelFormulaBeautifier</small></h1>
+		</div>
+	</div>
+	<div class="container">
+		<div id="ResourceWarning" class="alert alert-warning" role="alert">Resource loading speed is affected by your location. If there is no action, please wait for about 15 seconds and try again.</div>
+		<div id="main" class="row">
+			<div id="form-panel" class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+				<form>
+					<div class="form-group">
+						<label for="formula">Paste your formula here: 粘贴公式到这里</label>
+						<input type="text" class="form-control" id="formula" placeholder="Formula" required>
+					</div>
+					<div class="form-group">
+						<label for="deep">Number of deepest analytical layers,0 for no set 最深解析层数 0为不设置</label>
+						<input type="number" class="form-control" id="deep" placeholder="level" value="0">
+					</div>
+					<div class="btn-group">
+						<button class="btn btn-primary" type="button" onClick="beautify();">Beautify  格式化/美化</button>
+						<button class="btn btn-default" type="button" onClick="Clear();">Clear  清空</button>
+						<button class="btn btn-default" type="button" onClick="Example();">Load example  载入示例</button>
+						<button id="ShowFI" class="btn btn-default" type="button" onClick="ChangeShowFI();">FunctionInfo  显示函数信息</button>
+					</div>
+					<div class="form-group">
+						<label for="formula">Result：结果</label>
+						<div class="results">
+							<ul class="list-group" id="results">
+								
+							</ul>
+						</div>
+					</div>
+					<div class="btn-group">
+						<button id="clipboard" class="btn btn-primary" type="button" data-clipboard-text="">Copy result  复制结果</button>
+					</div>
+				</form>
+				<div id="warnings" class="warngings">
+				</div>
+				<div id="about" class="about">
+					<h2>About ExcelFormulaBeautifier </h2>
+					<hr>
+					<h4>
+						Paste your Excel Formulas into the textBox above, and click the <u> Beautify </u> button, we can make your Formulas more easy to be read and understood!
+					</h4>
+					<h4>
+						将您的Excel公式复制到上方的文本框中，点击 <u>格式化/美化</u> 按钮来将他变得更容易理解！
+					</h4>
+					<hr>
+					<h3>关于本项目</h3>
+					<h4>GitHub地址：<a href="https://github.com/AntoniotheFuture/ExcelFormulaBeautifier">github.com/AntoniotheFuture/ExcelFormulaBeautifier</a></h4>
+					<h4>Developers/开发者:<a href="antoniothefuture@qq.com">antoniothefuture@qq.com</a></h4>
+					<h7>This is a demo version, in other words, you may found a later version in github. </h7>
+					<h7>请留意我的项目地址来获得最新的版本。</h7>
+					<br>
+					<br>
+					<h7>If you like this,how about share this to your friends or give me a star? Thank you!</h7>
+					<h7>你们的支持是我最大的动力，如果你觉得这个工具有用，不妨分享出去让更多人知道，在我的项目中点一颗星那就更好了！</h7>
+				</div>
+			</div>
+			<div id="functions-panel" class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+				<label>Functions 使用的函数</label>
+				<div class="functions row" id="functions">
+					<div class="functionInfo">
+						<div class="Fname">ABS</div>
+						<div class="Des">returns a specified number of characters from the start of a supplied text string.</div>
+						<div class="Args"><span>Arg|参数：</span>range, criteria</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="./src/jquery-3.6.0.min.js"></script>
+	<script src="./src/bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
+	<script src="ExcelFormulaBeautifier.js"></script>
+	<script src="./src/clipboard.min.js"></script>
+	<script>
+		new ClipboardJS('#clipboard');
+		let OKColor = 'lightgreen';
+		let ErrColor = 'lightcoral';
+		let ShowFunctionInfoHint = "FunctionInfo  显示函数信息";
+		let NotShowFunctionInfoHint = "NoFunctionInfo  不显示函数信息";
+		let ShowFunctionInfo = true;
+		//let EXFBeautifier = new ExcelFormulaBeautifier;
+
+		//window.EXFBeautifier = EXFBeautifier;
+
+		let SpaceReg = new RegExp("&nbsp;","g");
+		let NewLineReg = new RegExp("<br>","g");
+
+
+
+		function LoadJss(){
+			let lang = 'zh-cn';
+			if (navigator.appName === 'Netscape'){
+				lang = navigator.language;
+			}else{  
+				lang = navigator.userLanguage;
+			}
+			//取得国家代码的前两个字母  
+			lang = lang.substr(0,2);
+			if(lang === 'zh'){
+				loadJs('ExFunctions-zh-CN.js');
+			}else{
+				loadJs('ExFunctions.js');
+			}
+		}
+		
+		function loadJs(url,callback){
+			$('#ResourceWarning').show();
+			let script=document.createElement('script');
+			script.type='text/javascript';
+			script.src = url;
+			document.body.appendChild(script);
+		}
+		
+		function beautify(){
+			let formula = $('#formula').val();
+			let deep = $('#deep').val();
+			deep *= 1;
+			//SetStatus(false,'',OKColor);
+			formula = formula.replace(SpaceReg,"");
+			formula = formula.replace(NewLineReg,"");
+			$('#warnings').children().remove();
+			$('#results').children().remove();
+			$('#functions').children().remove();
+			if(formula === ""){
+				return;
+			}
+			if(typeof(deep) != 'number'){
+				$('#deep').val(0);
+				deep = 0;
+			}
+			ExcelFormulaBeautifier.deep = deep;
+			ExcelFormulaBeautifier.space = '    '
+			ExcelFormulaBeautifier.format(formula);
+			ExcelFormulaBeautifier.explain();
+			if(ExcelFormulaBeautifier.errors.length !== 0){
+				let errors = ExcelFormulaBeautifier.getErrorArr();
+				for (let i = 0; i < errors.length; i++) {
+					const error = errors[i];
+					$('#warnings').append('<div class="alert alert-danger" role="alert">' + error + '</div>');
+				}
+				return;
+			}
+			$('#ResourceWarning').hide();
+			let results = ExcelFormulaBeautifier.getResultArray();
+			for (let i = 0; i < results.length; i++) {
+				const result = results[i];
+				$('#results').append('<li class="result result' + i +'"><span>' + result + '</span></li>');
+			}
+			let descriptions =  ExcelFormulaBeautifier.getExplainsArr();
+			for (let i = 0; i < descriptions.length; i++) {
+				const description = descriptions[i];
+				$('.result' + i).append('<span class = "description ' + (!ShowFunctionInfo ? 'description-hidden' : '') + '">' + description + '</span>')
+			}
+			//if(ShowFunctionInfo){
+			//	document.getElementById('TextBoxB').innerHTML = GetDes("<br>","&nbsp&nbsp&nbsp&nbsp","&nbsp&nbsp");
+			//}
+			//document.getElementById('TextBoxB').height = document.getElementById('TextBox').height;
+			let functionInfos = ExcelFormulaBeautifier.getUsedFunctionArr();
+			for (let i = 0; i < functionInfos.length; i++) {
+				const functionInfo = functionInfos[i];
+				$('#functions').append('<div class="functionInfo col-lg-12 col-md-12 col-sm-4 col-xs-6" data-function="' + functionInfo.function.Fname + '">' + 
+						'<div class="Fname">' + functionInfo.function.Fname + '</div>' + 
+						'<div class="Des">' + functionInfo.function.Des + '</div>' + 
+						'<div class="Args"><span>Arg|参数：</span>' + functionInfo.function.Args.toString() + '</div>' +
+					'</div>'
+				);
+				for (let ii = 0; ii < functionInfo.rows.length; ii++) {
+					const row = functionInfo.rows[ii];
+					$('.result' + row).addClass('function-' + functionInfo.function.Fname);
+				}
+			}
+			$('.functionInfo').hover(function(){
+				let fName = $(this).attr('data-function');
+				$('.function-' + fName).css('background-color','rgba(33,115,70,0.4)');
+			},function(){
+				let fName = $(this).attr('data-function');
+				$('.function-' + fName).css('background-color','');
+			});
+			$('#clipboard').attr('data-clipboard-text',ExcelFormulaBeautifier.getResultString());
+		}
+
+
+		
+		
+		function ChangeShowFI(){
+			ShowFunctionInfo = !ShowFunctionInfo;
+			if(ShowFunctionInfo){
+				$('#ShowFI').text(ShowFunctionInfoHint);
+				$('.description').removeClass('description-hidden');
+			}else{
+				$('#ShowFI').text(NotShowFunctionInfoHint);
+				$('.description').addClass('description-hidden');
+			}
+		}
+		
+		function Clear(){
+			$('#formula').val('');
+		}
+
+		function Example(){
+			$('#formula').val('=IFERROR(SUMIFS(D:D,E:E,1,F:F,"Apple") + 1,IF(3 * A1 > 10,20,100))');
+
+		}
+	</script>
+</body>
+</html>
